@@ -21,7 +21,22 @@ const HX711 = ({ node = {}, nodeData = {}, children, color }: any) => {
         {
             label: 'Update Interval', static: true, field: 'param-4', type: 'input',
             error: !['s', 'ms'].includes(nodeData['param-4']?.value?.replace(/['"0-9]+/g, '')) ? transitionErrorMsg : null
+        },
+        {
+            label: 'Sensitivity big', static: true, field: 'param-5', type: 'input',
+        },
+        {
+            label: 'Sensitivity small', static: true, field: 'param-6', type: 'input',
+        },
+        {
+            label: 'Small throttle', static: true, field: 'param-7', type: 'input',
+            error: !['s', 'ms'].includes(nodeData['param-7']?.value?.replace(/['"0-9]+/g, '')) ? transitionErrorMsg : null
+        },
+        {
+            label: 'Heartbeat', static: true, field: 'param-8', type: 'input',
+            error: !['s', 'ms'].includes(nodeData['param-8']?.value?.replace(/['"0-9]+/g, '')) ? transitionErrorMsg : null
         }
+
     ] as Field[]
     return (
         <Node node={node} isPreview={!node.id} title='HX711 Load Cell' color={color} id={node.id} skipCustom={true} disableInput disableOutput>
@@ -37,5 +52,14 @@ export default {
     keywords: ["analog", "cell","hx711", "load", "bridge", "wheatstone", "device"],
     check: (node, nodeData) => node.type == "CallExpression" && nodeData.to?.startsWith('hx711'),
     getComponent: (node, nodeData, children) => <HX711 color={getColor('HX711')} node={node} nodeData={nodeData} children={children} />,
-    getInitialData: () => { return { to: 'hx711', "param-1": { value: "", kind: "StringLiteral" }, "param-2": { value: "", kind: "StringLiteral" }, "param-3": { value: "128", kind: "StringLiteral" }, "param-4": { value: "60s", kind: "StringLiteral" } } }
+    getInitialData: () => { return { to: 'hx711', 
+        "param-1": { value: "", kind: "StringLiteral" }, 
+        "param-2": { value: "", kind: "StringLiteral" }, 
+        "param-3": { value: "128", kind: "StringLiteral" }, 
+        "param-4": { value: "100ms", kind: "StringLiteral" }, 
+        "param-5": {value: 100000, kind: "NumericLiteral"},
+        "param-6": {value: 50000, kind: "NumericLiteral"}, 
+        "param-7": { value: "2s", kind: "StringLiteral"},
+        "param-8": { value: "10s", kind: "StringLiteral"}
+    } }
 }

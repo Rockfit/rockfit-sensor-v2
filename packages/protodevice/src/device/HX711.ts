@@ -5,13 +5,21 @@ class HX711 {
     clkPin;
     updateInterval;
     gain;
-    constructor(name, platform, clkPin, gain, updateInterval) {
+    sensitivityBig;
+    sensitivitySmall;
+    smallThrottle;
+    heartbeat;
+    constructor(name, platform, clkPin, gain, updateInterval, sensitivityBig, sensitivitySmall, smallThrottle, heartbeat) {
         this.type = "sensor"
         this.name = name
         this.platform = platform
         this.clkPin = clkPin
         this.updateInterval = updateInterval
         this.gain = gain
+        this.sensitivityBig = sensitivityBig
+        this.sensitivitySmall = sensitivitySmall
+        this.smallThrottle = smallThrottle
+        this.heartbeat = heartbeat
     }
     attach(pin, deviceComponents) {
         const componentObjects = [
@@ -24,7 +32,21 @@ class HX711 {
               dout_pin: pin,
               clk_pin: this.clkPin,
               gain: this.gain,
-              update_interval: this.updateInterval
+              update_interval: this.updateInterval,      
+              filters: [
+                {
+                  or: [
+                    { delta: this.sensitivityBig },
+                    { heartbeat: this.heartbeat }
+                  ]
+                },
+                {
+                  or: [
+                    { delta: this.sensitivitySmall },
+                    { throttle: this.smallThrottle }
+                  ]
+                }
+              ]  
             },
             subsystem: this.getSubsystem()
           },
@@ -60,6 +82,6 @@ class HX711 {
       }
 }
 
-export function hx711(name, clkPin, gain, updateInterval) { 
-    return new HX711(name, 'hx711', clkPin, gain, updateInterval);
+export function hx711(name, clkPin, gain, updateInterval, sensitivityBig, sensitivitySmall, smallThrottle, heartbeat) { 
+  return new HX711(name, 'hx711', clkPin, gain, updateInterval, sensitivityBig, sensitivitySmall, smallThrottle, heartbeat);
 }
