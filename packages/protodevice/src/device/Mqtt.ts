@@ -18,7 +18,8 @@ class Mqtt {
         config: {
           broker: this.broker,
           port: this.port,
-          topic_prefix: this.topic_prefix
+          topic_prefix: this.topic_prefix,
+          log_topic: null
         },
         subsystem: this.getSubsystem()
       }
