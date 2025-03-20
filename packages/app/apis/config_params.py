@@ -59,8 +59,8 @@ for device in DEVICES:
 # Se pueden definir múltiples secuencias y seleccionar una mediante un "game number".
 # ================================
 GAME_SEQUENCES = {
-    1: ["r2", "tag2", "tag1"],
-    2: ["tag3", "tag4", "tag3"],
+    1: ["tag1", "koala1", "tag1"],
+    2: ["tag2", "tag2"],
     3: ["cube3", "cube4", "cube1"]
 }
 

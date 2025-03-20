@@ -1,0 +1,116 @@
+esphome:
+  name: tag1
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: arduino
+logger: {}
+i2c:
+  id: i2c_bus
+  sda: 23
+  scl: '22'
+  scan: true
+mqtt:
+  broker: 192.168.8.163
+  port: 1883
+  topic_prefix: devices/tag1
+  log_topic: null
+  username: tag1
+  password: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRhZzEiLCJ0eXBlIjoiZGV2aWNlIiwiYWRtaW4iOmZhbHNlLCJpYXQiOjE3NDIwNTA0MDcsImV4cCI6NDg5NzgxMDQwN30.W_2cZFkqlYISKlINDbaDPrhTRb2ayWEwOyyRWtGPjIk
+wifi:
+  ssid: Rf_limbx
+  password: Rockfit5
+  power_save_mode: none
+msa3xx:
+  model: MSA301
+  range: 4G
+  resolution: 12
+  id: accelsensor
+  i2c_id: i2c_bus
+  calibration:
+    offset_x: -0.25
+    offset_y: -0.4
+    offset_z: -0.8
+  transform:
+    mirror_x: false
+    mirror_y: false
+    mirror_z: false
+    swap_xy: false
+  on_tap:
+    then:
+      mqtt.publish:
+        topic: devices/tag1/msa3xx/accelsensor/tap
+        payload: Tapped
+  on_double_tap:
+    then:
+      mqtt.publish:
+        topic: devices/tag1/msa3xx/accelsensor/double_tap
+        payload: Double Tapped
+  on_active:
+    then:
+      mqtt.publish:
+        topic: devices/tag1/msa3xx/accelsensor/active
+        payload: Active
+  on_orientation:
+    then:
+      mqtt.publish:
+        topic: devices/tag1/msa3xx/accelsensor/orientation
+        payload: Changed orientation
+external_components:
+  source: 'github://Protofy-xyz/esphome-components'
+  refresh: 10s
+  components:
+    - msa3xx
+light:
+  platform: esp32_rmt_led_strip
+  pin: 4
+  name: circular_leds
+  id: circular_leds
+  chipset: WS2811
+  num_leds: '16'
+  rgb_order: GRB
+  restore_mode: ALWAYS_OFF
+  default_transition_length: 0s
+  rmt_channel: '0'
+  effects:
+    - pulse: null
+    - pulse:
+        name: Fast Pulse
+        transition_length: 0.5s
+        update_interval: 0.5s
+    - pulse:
+        name: Slow Pulse
+        update_interval: 2s
+    - random: null
+    - random:
+        name: My Slow Random Effect
+        transition_length: 30s
+        update_interval: 30s
+    - random:
+        name: My Fast Random Effect
+        transition_length: 4s
+        update_interval: 5s
+    - strobe: null
+    - strobe:
+        name: Strobe Effect With Custom Values
+        colors:
+          - state: true
+            brightness: 100%
+            red: 100%
+            green: 0%
+            blue: 0%
+            duration: 500ms
+          - state: false
+            duration: 250ms
+          - state: true
+            brightness: 100%
+            red: 0%
+            green: 100%
+            blue: 0%
+            duration: 500ms
+    - flicker: null
+    - flicker:
+        name: Flicker Effect With Custom Values
+        alpha: 95%
+        intensity: 1.5%
