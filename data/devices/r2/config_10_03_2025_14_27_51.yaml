@@ -1,0 +1,75 @@
+esphome:
+  name: r2
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: arduino
+logger: {}
+i2c:
+  id: i2c_bus
+  sda: 23
+  scl: '22'
+  scan: true
+mqtt:
+  broker: 192.168.8.163
+  port: 1883
+  topic_prefix: devices/r2
+  log_topic: null
+  username: r2
+  password: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InIyIiwidHlwZSI6ImRldmljZSIsImFkbWluIjpmYWxzZSwiaWF0IjoxNzQxNjEzMjYyLCJleHAiOjQ4OTczNzMyNjJ9.Iw5KKyyOyZp-VEt5B67njgU3Lw_QvvymyQ5ROIoldso
+wifi:
+  ssid: Rf_limbx
+  password: Rockfit5
+  power_save_mode: none
+msa3xx:
+  model: MSA301
+  range: 4G
+  resolution: 12
+  id: accelsensor
+  i2c_id: i2c_bus
+  calibration:
+    offset_x: -0.25
+    offset_y: -0.4
+    offset_z: -0.8
+  transform:
+    mirror_x: false
+    mirror_y: false
+    mirror_z: false
+    swap_xy: false
+  on_tap:
+    then:
+      mqtt.publish:
+        topic: devices/r2/msa3xx/accelsensor/tap
+        payload: Tapped
+  on_double_tap:
+    then:
+      mqtt.publish:
+        topic: devices/r2/msa3xx/accelsensor/double_tap
+        payload: Double Tapped
+  on_active:
+    then:
+      mqtt.publish:
+        topic: devices/r2/msa3xx/accelsensor/active
+        payload: Active
+  on_orientation:
+    then:
+      mqtt.publish:
+        topic: devices/r2/msa3xx/accelsensor/orientation
+        payload: Changed orientation
+external_components:
+  source: 'github://Protofy-xyz/esphome-components'
+  refresh: 10s
+  components:
+    - msa3xx
+light:
+  platform: esp32_rmt_led_strip
+  pin: 4
+  name: circular_leds
+  id: circular_leds
+  chipset: WS2811
+  num_leds: '16'
+  rgb_order: GRB
+  restore_mode: ALWAYS_OFF
+  default_transition_length: 0s
+  rmt_channel: '0'

@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  protofy:
+      image: "protofy/workspace"
+      command: -c "yarn dev"
+      ports:
+        - 3000:3000
+        - 8000:8000
+        - 1883:1883
+      volumes:
+        - ../:/workspace
+        - protofy_modules:/workspace/node_modules
+volumes:
+  protofy_modules:
+    external: true

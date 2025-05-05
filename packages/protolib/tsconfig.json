@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "strict": false,
+    "paths": {
+      "protolib/*": ["./*"],
+      "@components/*": ["./components/*"],
+      "react-native": ["react-native-web"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "jest/jest-globals.d.ts"
+  ]
+}

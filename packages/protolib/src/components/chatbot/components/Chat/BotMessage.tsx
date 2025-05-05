@@ -1,0 +1,38 @@
+import classNames from "classnames";
+import { ChatMessageType } from "../../store/store";
+import { motion } from "framer-motion";
+
+import TextMessage from "./TextMessage";
+import ImageMessage from "./ImageMessage";
+
+const variants = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: { scale: 1, opacity: 1 },
+};
+
+type Props = {
+  index: number;
+  chat: ChatMessageType;
+};
+
+export default function BotMessage({ index, chat }: Props) {
+  return (
+    <div
+      className={classNames("py-4 px-2 md:px-0")}
+    >
+      <motion.div
+        variants={variants}
+        initial="hidden"
+        animate="visible"
+        style={{ maxWidth: "900px" }}
+        className="mx-auto md:flex md:items-center group"
+      >
+        {chat.type && chat.type === "image_url" ? (
+          <ImageMessage index={index} chat={chat}/>
+        ) : (
+          <TextMessage index={index} chat={chat} />
+        )}
+      </motion.div>
+    </div>
+  );
+}

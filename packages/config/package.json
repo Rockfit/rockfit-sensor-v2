@@ -1,0 +1,20 @@
+{
+    "name": "@my/config",
+    "version": "1.0.0",
+    "description": "Protofy configuration package",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc"
+    },
+    "files": [
+        "dist"
+    ],
+    "devDependencies": {
+        "typescript": "~5.3.3"
+    },
+    "dependencies": {
+        "protobase": "*",
+        "protonode": "*"
+    }
+}

@@ -1,0 +1,11 @@
+export const flowDirection:"RIGHT"|"LEFT" = "LEFT";
+
+// flow from right to left or left to right
+export const DEVMODE = false;
+
+export const POKAYOKE_ENABLED = false;
+
+//disables/enables tree structure in blocks, to help arrange elk nodes
+export const NODE_TREE = false; 
+// toggle generateMask UI
+export const DEV_WIP_GM = false; 

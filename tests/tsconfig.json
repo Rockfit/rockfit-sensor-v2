@@ -1,0 +1,11 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "strict": false,
+    },
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "jest/jest-globals.d.ts"
+    ]
+}
