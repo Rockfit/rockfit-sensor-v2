@@ -1,4 +1,4 @@
-# limbx.py
+# .py
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
@@ -122,7 +122,7 @@ class ControlPanel(BoxLayout):
         global global_brightness
         global_brightness = value
 
-class LimbxApp(App):
+class App(App):
     def build(self):
         return ControlPanel()
 
@@ -130,4 +130,4 @@ class LimbxApp(App):
         threading.Thread(target=logic.main, daemon=True).start()
 
 if __name__ == '__main__':
-    LimbxApp().run()
+    App().run()

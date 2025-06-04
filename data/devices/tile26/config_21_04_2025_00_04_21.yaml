@@ -1,0 +1,88 @@
+esphome:
+  name: tile26
+esp32:
+  board: esp32dev
+  variant: esp32
+  framework:
+    type: esp-idf
+logger: {}
+ethernet:
+  type: LAN8720
+  mdc_pin: 23
+  mdio_pin: 18
+  clk_mode: GPIO17_OUT
+  phy_addr: 0
+  power_pin: 12
+light:
+  platform: esp32_rmt_led_strip
+  pin: 13
+  name: leds
+  id: leds
+  chipset: WS2811
+  num_leds: '100'
+  rgb_order: GRB
+  restore_mode: ALWAYS_OFF
+  default_transition_length: 0s
+  effects:
+    - pulse: null
+    - pulse:
+        name: Fast Pulse
+        transition_length: 0.5s
+        update_interval: 0.5s
+    - pulse:
+        name: Slow Pulse
+        update_interval: 2s
+    - random: null
+    - random:
+        name: My Slow Random Effect
+        transition_length: 30s
+        update_interval: 30s
+    - random:
+        name: My Fast Random Effect
+        transition_length: 4s
+        update_interval: 5s
+    - strobe: null
+    - strobe:
+        name: Strobe Effect With Custom Values
+        colors:
+          - state: true
+            brightness: 100%
+            red: 100%
+            green: 0%
+            blue: 0%
+            duration: 500ms
+          - state: false
+            duration: 250ms
+          - state: true
+            brightness: 100%
+            red: 0%
+            green: 100%
+            blue: 0%
+            duration: 500ms
+    - flicker: null
+    - flicker:
+        name: Flicker Effect With Custom Values
+        alpha: 95%
+        intensity: 1.5%
+mqtt:
+  broker: 192.168.8.163
+  port: 1883
+  topic_prefix: devices/tile26
+  log_topic: null
+  username: tile26
+  password: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRpbGUyNiIsInR5cGUiOiJkZXZpY2UiLCJhZG1pbiI6ZmFsc2UsImlhdCI6MTc0NTE4NTcwNiwiZXhwIjo0OTAwOTQ1NzA2fQ.XIERoyMvW0o7hvp7ThWsV4N9jvUwpAX8-ce9rnY6-m8
+sensor:
+  platform: hx711
+  name: loadcell
+  id: loadcell
+  dout_pin: 16
+  clk_pin: '15'
+  gain: '128'
+  update_interval: 100ms
+  filters:
+    - or:
+        - delta: '100000'
+        - heartbeat: 10s
+    - or:
+        - delta: '50000'
+        - throttle: 2s
