@@ -1,3 +1,4 @@
+import { extractComponent } from "./utils"
 class HX711 {
     name;
     type;
@@ -26,12 +27,9 @@ class HX711 {
           {
             name: this.type,
             config: {
-              platform: this.platform,
+              platform: "template",
               name: this.name,
               id: this.name,
-              dout_pin: pin,
-              clk_pin: this.clkPin,
-              gain: this.gain,
               update_interval: this.updateInterval,      
               filters: [
                 {
@@ -50,18 +48,197 @@ class HX711 {
             },
             subsystem: this.getSubsystem()
           },
+          {
+            name: this.type,
+            config: {
+              platform: this.platform,
+              id: this.name+"_internal",
+              dout_pin: pin,
+              clk_pin: this.clkPin,
+              gain: this.gain,
+              update_interval: this.updateInterval,      
+              filters: [
+                { delta: this.sensitivityBig },
+              ],
+              on_raw_value:{
+                then: {
+                  lambda:
+`id(${this.name}).publish_state(x);
+`,
+                }
+              },
+              on_value:{
+                then: {
+                  "script.execute": "handle_led_action"
+                }
+              }
+            },
+          },
+          {
+            name: 'mqtt',
+            config: {
+              on_message: [
+                {
+                  topic: `devices/${deviceComponents.esphome.name}/on_weight_action`,
+                  then: [
+                    {
+                      lambda:
+`json::parse_json(x.c_str(), [&](JsonObject root) -> bool {
+  if (root.containsKey("action")) {
+    std::string action = root["action"].as<std::string>();
+    id(led_action) = action;
+
+    float r = 1.0, g = 1.0, b = 1.0;
+    int on_time = 200;
+
+    if (root.containsKey("config")) {
+      JsonObject config = root["config"];
+      if (config.containsKey("r")) r = config["r"].as<float>();
+      if (config.containsKey("g")) g = config["g"].as<float>();
+      if (config.containsKey("b")) b = config["b"].as<float>();
+      if (config.containsKey("on_time")) on_time = config["on_time"].as<int>();
+    }
+
+    id(led_r) = r;
+    id(led_g) = g;
+    id(led_b) = b;
+    id(led_on_time) = on_time;
+
+    ESP_LOGD("LED_CONTROL", "Parsed action: %s | r=%.2f g=%.2f b=%.2f on_time=%dms",
+            id(led_action).c_str(), r, g, b, on_time);
+
+    return false;
+  }
+  return true;
+});
+`
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            name: "globals",
+            config:{
+              id: "led_action",
+              type: "std::string",
+              initial_value: '""'
+            }
+          },
+          {
+            name: "globals",
+            config:{
+              id: "led_r",
+              type: "float",
+              initial_value: '1.0'
+            }
+          },
+          {
+            name: "globals",
+            config:{
+              id: "led_g",
+              type: "float",
+              initial_value: '1.0'
+            }
+          },
+          {
+            name: "globals",
+            config:{
+              id: "led_b",
+              type: "float",
+              initial_value: '1.0'
+            }
+          },
+          {
+            name: "globals",
+            config:{
+              id: "led_on_time",
+              type: "int",
+              initial_value: '200'
+            }
+          },        
+          {
+            name: "script",
+            config: {
+              id: "handle_led_action",
+              then: [
+                {
+                  lambda: 'ESP_LOGD("LED_CONTROL", "Executing action: %s", id(led_action).c_str());'
+                },
+                {
+                  if: {
+                    condition: {
+                      lambda: 'return id(led_action) == "on";'
+                    },
+                    then: [
+                      {
+                        "light.turn_on": {
+                          id: "leds",
+                          brightness: 1.0,
+                          red: '@!lambda return id(led_r);@',
+                          green: '@!lambda return id(led_g);@',
+                          blue: '@!lambda return id(led_b);@',
+                          transition_length: "0s"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  if: {
+                    condition: {
+                      lambda: 'return id(led_action) == "off";'
+                    },
+                    then: [
+                      {
+                        "light.turn_off": {
+                          id: "leds",
+                          transition_length: "0s"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  if: {
+                    condition: {
+                      lambda: 'return id(led_action) == "blink";'
+                    },
+                    then: [
+                      {
+                        "light.turn_on": {
+                          id: "leds",
+                          brightness: 1.0,
+                          red: '@!lambda return id(led_r);@',
+                          green: '@!lambda return id(led_g);@',
+                          blue: '@!lambda return id(led_b);@',
+                          transition_length: "0s"
+                        }
+                      },
+                      {
+                        delay: '@!lambda return id(led_on_time);@'
+                      },
+                      {
+                        "light.turn_off": {
+                          id: "leds",
+                          transition_length: "0s"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+          
+
         ]
     
         componentObjects.forEach((element, j) => {
-            if (!deviceComponents[element.name]) {
-                deviceComponents[element.name] = element.config
-            } else {
-                if (!Array.isArray(deviceComponents[element.name])) {
-                    deviceComponents[element.name] = [deviceComponents[element.name]]
-                }
-                deviceComponents[element.name] = [...deviceComponents[element.name], element.config]
-            }
+          deviceComponents = extractComponent(element, deviceComponents, [{ key: 'mqtt', nestedKey: 'on_message' }])
         })
+    
         return deviceComponents
       }
       getSubsystem() {
