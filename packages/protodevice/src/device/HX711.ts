@@ -57,9 +57,6 @@ class HX711 {
               clk_pin: this.clkPin,
               gain: this.gain,
               update_interval: this.updateInterval,      
-              filters: [
-                { delta: this.sensitivityBig },
-              ],
               on_raw_value:{
                 then: {
                   lambda:
@@ -69,7 +66,16 @@ class HX711 {
               },
               on_value:{
                 then: {
-                  "script.execute": "handle_led_action"
+                  lambda:
+`float delta = x - id(last_loadcell_value);
+if (delta > ${this.sensitivityBig} ) {
+  ESP_LOGD("LOADCELL", "Positive delta over ${this.sensitivityBig} : %.0f", delta);
+  ESP_LOGD("LOADCELL", "last_loadcell_value = %f, current_value = %f", id(last_loadcell_value), x);
+  id(handle_led_action).execute();
+}
+
+id(last_loadcell_value) = x;
+`
                 }
               }
             },
@@ -156,6 +162,14 @@ class HX711 {
               id: "led_on_time",
               type: "int",
               initial_value: '200'
+            }
+          },
+          {
+            name: "globals",
+            config:{
+              id: "last_loadcell_value",
+              type: "float",
+              initial_value: '0.0'
             }
           },        
           {
